@@ -22,6 +22,7 @@ const ORDER_ACTION = 'order';
 const FIND_PRODUCT_ACTION = 'find_product';
 const ASK_PRICE_ACTION = 'ask_price';
 const ASK_TOTAL_PRICE_ACTION = 'ask_total_price';
+const CHECK_PRODUCT_ACTION = 'check_product';
 
 
 let actionMap = new Map();
@@ -31,6 +32,7 @@ actionMap.set(ORDER_ACTION, orderHandler);
 actionMap.set(FIND_PRODUCT_ACTION, findProductHandler);
 actionMap.set(ASK_PRICE_ACTION, askPriceHandler);
 actionMap.set(ASK_TOTAL_PRICE_ACTION, askTotalPriceHandler);
+actionMap.set(CHECK_PRODUCT_ACTION, checkProductHandler);
 
 
 // start service
@@ -160,4 +162,14 @@ function askTotalPriceHandler(app) {
         amount += parseInt(app.data.orderList[i].quantily);
     }
     app.ask('Bạn đã mua ' + amount + ' sản phẩm. Tổng giá ' + (amount * 25) + 'k');
+}
+
+function checkProductHandler(app) {
+    let product = app.getArgument('product');
+    if (product) {
+        app.ask('Có bán ' + product + ' bạn nha.');
+    } else {
+        app.ask('Bạn muốn hỏi sản phẩm nào?');
+    }
+
 }
