@@ -91,6 +91,7 @@ function orderHandler(app) {
     do {
         if (askPreProduct && askPostProduct && product) {
             ask = 'Có bán ' + product + ' bạn nha. ';
+            console.log('call here @@@');
         }
 
         if (product == null) {
