@@ -116,15 +116,17 @@ function orderHandler(app) {
         if (app.data.orderList == null) {
             app.data.orderList = [];
         }
-        app.data.orderList.push({
+
+        let bill = {
             'name': product,
             'quantily': quantily,
             'size': size,
             'sugar': sugar,
             'ice': ice
-        })
+        }
 
-        app.ask('Bạn đã order: ' + product + '. Số lượng: ' + quantily + '. Bạn có mua thêm gì không?');
+        app.data.orderList.push(bill);
+        app.ask('Bạn đã order: ' + JSON.stringify(bill));
     }
 }
 
@@ -145,6 +147,9 @@ function askTotalPriceHandler(app) {
         return;
     }
 
-    let amount = app.data.orderList.length;
+    var amount = 0;
+    for (var i = 0; i < app.data.orderList.length; ++i) {
+        amount += app.data.orderList[i].quantily;
+    }
     app.ask('Bạn đã mua ' + amount + ' sản phẩm. Tổng giá ' + amount * 25 + 'k');
 }
