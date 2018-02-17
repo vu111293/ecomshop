@@ -83,9 +83,16 @@ function orderHandler(app) {
     let sugar = app.getArgument('sugar_model');
     let ice = app.getArgument('ice_model');
 
-    var ask;
+    let askPreProduct = app.getArgument('ask_preproduct');
+    let askPostProduct = app.getArgument('ask_product');
+
+    var ask = '';
 
     do {
+        if (askPreProduct && askPostProduct && product) {
+            ask = 'Có bán ' + product + ' bạn nha. ';
+        }
+
         if (product == null) {
             ask = "Bạn muốn mua gì?";
             break;
@@ -100,12 +107,12 @@ function orderHandler(app) {
         }
 
         if (sugar == null) {
-            ask = "Bạn muốn ít hay nhiều đường";
+            ask += "Bạn muốn ít hay nhiều đường";
             break;
         }
 
         if (ice == null) {
-            ask = "Bạn muốn ít hay nhiều đá";
+            ask += "Bạn muốn ít hay nhiều đá";
             break;
         }
     } while (false);
@@ -149,7 +156,7 @@ function askTotalPriceHandler(app) {
 
     var amount = 0;
     for (var i = 0; i < app.data.orderList.length; ++i) {
-        amount += app.data.orderList[i].quantily;
+        amount += parseInt(app.data.orderList[i].quantily);
     }
-    app.ask('Bạn đã mua ' + amount + ' sản phẩm. Tổng giá ' + amount * 25 + 'k');
+    app.ask('Bạn đã mua ' + amount + ' sản phẩm. Tổng giá ' + (amount * 25) + 'k');
 }
