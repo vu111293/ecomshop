@@ -160,7 +160,7 @@ function orderHandler(app) {
         let options = foundProduct.options;
         console.log("Product found: " + JSON.stringify(foundProduct));
         console.log("Options: " + JSON.stringify(options));
-        
+
         if (sugar == null && options.includes('sugar')) {
             ask += "Bạn muốn ít hay nhiều đường";
             break;
@@ -201,7 +201,7 @@ function askPriceHandler(app) {
 
     let foundItem = findProduct(product.toLowerCase());
     if (foundItem) {
-        app.ask(product + ' có giá '+ foundItem.price);
+        app.ask(product + ' có giá ' + foundItem.price);
     } else {
         app.ask('Không tìm thấy sản phẩm. Xin thử lại');
     }
@@ -223,14 +223,21 @@ function askTotalPriceHandler(app) {
 function checkProductHandler(app) {
     let product = app.getArgument('product');
     if (product) {
-        app.ask('Có bán ' + product + ' bạn nha.');
+        let foundProduct = findProduct(product.toLowerCase());
+        let ask;
+        if (foundProduct) {
+            ask = 'Có bán ' + product + ' bạn nha. ';
+        } else {
+            ask = 'Hiện tại shop không bán ' + product + '. Xin chọn sp khác';
+        }
+        app.ask(ask);
     } else {
         app.ask('Bạn muốn hỏi sản phẩm nào?');
     }
 }
 
 function paymentHandler(app) {
-    ecom.makeOrder(function(response) {
+    ecom.makeOrder(function (response) {
         if (response) {
             // parse result
             let totalPrice = response.total_price;
@@ -256,7 +263,7 @@ function findProduct(productname) {
         for (let index in nameList) {
             let name = nameList[index];
             if (productname.includes(name) == false) {
-                continue; 
+                continue;
             }
             foundItem = item;
             break;
