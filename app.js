@@ -101,7 +101,7 @@ function welcomeHandler(app) {
     } else {
         var promotionDraft = '';
         for (let item in promotionsList) {
-            promotionDraft += item + "/n";
+            promotionDraft += promotionsList[item] + "\n";
         }
         app.ask("Shop xin kính chào quý khách. Hiện tại shop có các chương trinh KM sau:\n" + promotionDraft);
     }
@@ -158,6 +158,9 @@ function orderHandler(app) {
         }
 
         let options = foundProduct.options;
+        console.log("Product found: " + JSON.stringify(foundProduct));
+        console.log("Options: " + JSON.stringify(options));
+        
         if (sugar == null && options.includes('sugar')) {
             ask += "Bạn muốn ít hay nhiều đường";
             break;
