@@ -9,6 +9,16 @@ let bodyParse = require('body-parser');
 let sprintf = require('sprintf-js').sprintf;
 let localize = require('localize');
 let url = require('url');
+let ecomMod = require('./ecomapi');
+
+// firebase lib
+var admin = require("firebase-admin");
+var serviceAccount = require("./orderchatbot-firebase-admin.json");
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://orderchatbot.firebaseio.com"
+});
 
 // net lib
 let rxhttp = require('rx-http-request').RxHttpRequest;
@@ -23,6 +33,7 @@ const FIND_PRODUCT_ACTION = 'find_product';
 const ASK_PRICE_ACTION = 'ask_price';
 const ASK_TOTAL_PRICE_ACTION = 'ask_total_price';
 const CHECK_PRODUCT_ACTION = 'check_product';
+const PAYMENT_ACTION = 'payment';
 
 
 let actionMap = new Map();
@@ -33,9 +44,12 @@ actionMap.set(FIND_PRODUCT_ACTION, findProductHandler);
 actionMap.set(ASK_PRICE_ACTION, askPriceHandler);
 actionMap.set(ASK_TOTAL_PRICE_ACTION, askTotalPriceHandler);
 actionMap.set(CHECK_PRODUCT_ACTION, checkProductHandler);
+actionMap.set(PAYMENT_ACTION, paymentHandler);
 
 
 // start service
+var ecom = new ecomMod();
+setupdb();
 let app = express();
 app.set('port', (process.env.PORT || 8080));
 app.use(bodyParse.json({ type: 'application/json' }));
@@ -66,8 +80,31 @@ app.post('/', function (request, response) {
     // response.sendStatus(200); // reponse OK
 });
 
+var drinkList;
+var foodList;
+var promotionsList;
+
+function setupdb() {
+    admin.database().ref('/').on('value', function (postSnapshot) {
+        if (postSnapshot.val()) {
+            drinkList = postSnapshot.val().drinklist;
+            foodList = postSnapshot.val().foodlist;
+            promotionsList = postSnapshot.val().promotions;
+        }
+        console.log('firebase updated');
+    });
+}
+
 function welcomeHandler(app) {
-    app.ask("ECom Shop xin kính chào quý khách. Hiện shop có chương trình đồng giá 25k.");
+    if (promotionsList == null) {
+        app.ask("Shop xin kính chào quí khách");
+    } else {
+        var promotionDraft = '';
+        for (let item in promotionsList) {
+            promotionDraft += item + "/n";
+        }
+        app.ask("Shop xin kính chào quý khách. Hiện tại shop có các chương trinh KM sau:\n" + promotionDraft);
+    }
 }
 
 function defaultFallbackHandler(app) {
@@ -92,12 +129,23 @@ function orderHandler(app) {
 
     do {
         if (askPreProduct && askPostProduct && product) {
-            ask = 'Có bán ' + product + ' bạn nha. ';
+            let foundProduct = findProduct(product.toLowerCase());
+            if (foundProduct) {
+                ask = 'Có bán ' + product + ' bạn nha. ';
+            } else {
+                ask = 'Hiện tại shop không bán ' + product + '. Xin chọn sp khác';
+            }
             console.log('call here @@@');
         }
 
         if (product == null) {
             ask = "Bạn muốn mua gì?";
+            break;
+        }
+
+        let foundProduct = findProduct(product.toLowerCase());
+        if (foundProduct == null) {
+            ask = 'Hiện tại shop không bán ' + product + '. Xin chọn sp khác';
             break;
         }
 
@@ -109,12 +157,13 @@ function orderHandler(app) {
             size = "medium";
         }
 
-        if (sugar == null) {
+        let options = foundProduct.options;
+        if (sugar == null && options.includes('sugar')) {
             ask += "Bạn muốn ít hay nhiều đường";
             break;
         }
 
-        if (ice == null) {
+        if (ice == null && options.includes('ice')) {
             ask += "Bạn muốn ít hay nhiều đá";
             break;
         }
@@ -142,13 +191,17 @@ function orderHandler(app) {
 
 function askPriceHandler(app) {
     let product = app.getArgument('product');
-
     if (product == null) {
         app.ask('Bạn muốn hỏi giá sản phẩm nào?');
         return;
     }
 
-    app.ask(product + ' có giá 25k');
+    let foundItem = findProduct(product.toLowerCase());
+    if (foundItem) {
+        app.ask(product + ' có giá '+ foundItem.price);
+    } else {
+        app.ask('Không tìm thấy sản phẩm. Xin thử lại');
+    }
 }
 
 function askTotalPriceHandler(app) {
@@ -171,5 +224,44 @@ function checkProductHandler(app) {
     } else {
         app.ask('Bạn muốn hỏi sản phẩm nào?');
     }
+}
 
+function paymentHandler(app) {
+    ecom.makeOrder(function(response) {
+        if (response) {
+            // parse result
+            let totalPrice = response.total_price;
+            let address = response.address;
+            let time = response.created_at;
+            let id = response.id.substring(0, 5) + '...' + response.id.substring(response.id.length - 5);
+            app.ask('Bill ' + id + ' đã tạo thành công. Tổng bill là ' + totalPrice + ', được giao đến ' + address);
+        } else {
+            app.ask('Xãy ra lỗi khi thanh toán');
+        }
+    });
+}
+
+// support method
+function findProduct(productname) {
+    var foundItem;
+    for (let key in drinkList) {
+        let item = drinkList[key];
+        if (item.replacename == null) {
+            continue;
+        }
+        let nameList = item.replacename.split(',');
+        for (let index in nameList) {
+            let name = nameList[index];
+            if (productname.includes(name) == false) {
+                continue; 
+            }
+            foundItem = item;
+            break;
+        }
+        if (foundItem != null) {
+            break;
+        }
+    }
+
+    return foundItem;
 }
