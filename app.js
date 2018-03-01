@@ -32,7 +32,7 @@ const ORDER_ACTION = 'order';
 const FIND_PRODUCT_ACTION = 'find_product';
 const ASK_PRICE_ACTION = 'ask_price';
 const ASK_TOTAL_PRICE_ACTION = 'ask_total_price';
-const CHECK_PRODUCT_ACTION = 'check_product';
+const ASK_PRODUCT_ACTION = 'ask_product';
 const PAYMENT_ACTION = 'payment';
 
 
@@ -43,7 +43,7 @@ actionMap.set(ORDER_ACTION, orderHandler);
 actionMap.set(FIND_PRODUCT_ACTION, findProductHandler);
 actionMap.set(ASK_PRICE_ACTION, askPriceHandler);
 actionMap.set(ASK_TOTAL_PRICE_ACTION, askTotalPriceHandler);
-actionMap.set(CHECK_PRODUCT_ACTION, checkProductHandler);
+actionMap.set(ASK_PRODUCT_ACTION, askProductHandler);
 actionMap.set(PAYMENT_ACTION, paymentHandler);
 
 
@@ -122,25 +122,37 @@ function orderHandler(app) {
     let sugar = app.getArgument('sugar_model');
     let ice = app.getArgument('ice_model');
 
-    let askPreProduct = app.getArgument('ask_preproduct');
-    let askPostProduct = app.getArgument('ask_product');
+    // let askPreProduct = app.getArgument('ask_preproduct');
+    // let askPostProduct = app.getArgument('ask_product');
 
     var ask = '';
 
     do {
-        if (askPreProduct && askPostProduct && product) {
-            let foundProduct = findProduct(product.toLowerCase());
-            if (foundProduct) {
-                ask = 'Có bán ' + product + ' bạn nha. ';
-            } else {
-                ask = 'Hiện tại shop không bán ' + product + '. Xin chọn sp khác';
-            }
-            console.log('call here @@@');
-        }
+        // if (askPreProduct && askPostProduct && product) {
+        //     let foundProduct = findProduct(product.toLowerCase());
+        //     if (foundProduct) {
+        //         ask = 'Có bán ' + product + ' bạn nha. ';
+        //     } else {
+        //         ask = 'Hiện tại shop không bán ' + product + '. Xin chọn sp khác';
+        //     }
+        //     console.log('call here @@@');
+        // }
 
         if (product == null) {
-            ask = "Bạn muốn mua gì?";
-            break;
+            // check context
+            let context = app.getContext('ask-product-context');
+            if (context == null) {
+                ask = 'Bạn muốn mua gì?';
+                break;
+            }
+
+            let cacheProduct = context.parameters.product_ask;
+            if (cacheProduct == null) {
+                ask = 'Bạn muốn mua gì?';
+                break;
+            }
+
+            product = cacheProduct;
         }
 
         let foundProduct = findProduct(product.toLowerCase());
@@ -220,15 +232,15 @@ function askTotalPriceHandler(app) {
     app.ask('Bạn đã mua ' + amount + ' sản phẩm. Tổng giá ' + (amount * 25) + 'k');
 }
 
-function checkProductHandler(app) {
-    let product = app.getArgument('product');
+function askProductHandler(app) {
+    let product = app.getArgument('product_ask');
     if (product) {
         let foundProduct = findProduct(product.toLowerCase());
         let ask;
         if (foundProduct) {
-            ask = 'Có bán ' + product + ' bạn nha. ';
+            ask = 'Có bán ' + product + ' bạn nha. Bạn muốn mua bao nhiêu ly?';
         } else {
-            ask = 'Hiện tại shop không bán ' + product + '. Xin chọn sp khác';
+            ask = 'Hiện tại shop không bán ' + product + '. Xin chọn sản phẩm khác';
         }
         app.ask(ask);
     } else {
