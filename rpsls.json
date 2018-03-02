@@ -1,0 +1,21 @@
+{
+  "actions": [
+    {
+      "description": "RPSLS Welcome Intent",
+      "name": "MAIN",
+      "fulfillment": {
+        "conversationName": "main"
+      },
+      "intent": {
+        "name": "actions.intent.MAIN"
+      }
+    }
+  ],
+  "conversations": {
+    "main": {
+      "name": "main",
+      "url": "https://b000a11c.ngrok.io",
+      "fulfillmentApiVersion": 2
+    }
+  }
+}
