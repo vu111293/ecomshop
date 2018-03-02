@@ -46,6 +46,9 @@ actionMap.set(ASK_TOTAL_PRICE_ACTION, askTotalPriceHandler);
 actionMap.set(ASK_PRODUCT_ACTION, askProductHandler);
 actionMap.set(PAYMENT_ACTION, paymentHandler);
 
+actionMap.set('pick.option', pickOption);
+actionMap.set('option.picked', optionPicked);
+
 
 // start service
 var ecom = new ecomMod();
@@ -274,6 +277,21 @@ function paymentHandler(app) {
         }
     });
 }
+
+function pickOption (app) {
+    if (app.hasSurfaceCapability(app.SurfaceCapabilities.SCREEN_OUTPUT)) {
+      app.askWithCarousel('Which of these looks good?',
+        app.getIncomingCarousel().addItems(
+          app.buildOptionItem('another_choice', ['Another choice']).
+          setTitle('Another choice').setDescription('Choose me!')));
+    } else {
+      app.ask('What would you like?');
+    }
+  }
+  
+  function optionPicked (app) {
+    app.ask('You picked ' + app.getSelectedOption());
+  }
 
 // support method
 function findProduct(productname) {
