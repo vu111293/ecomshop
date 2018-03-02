@@ -36,18 +36,7 @@ const ASK_PRODUCT_ACTION = 'ask_product';
 const PAYMENT_ACTION = 'payment';
 
 
-let actionMap = new Map();
-actionMap.set(WELLCOM_ACTION, welcomeHandler)
-actionMap.set(DEFAULT_FALLBACK_ACTION, defaultFallbackHandler);
-actionMap.set(ORDER_ACTION, orderHandler);
-actionMap.set(FIND_PRODUCT_ACTION, findProductHandler);
-actionMap.set(ASK_PRICE_ACTION, askPriceHandler);
-actionMap.set(ASK_TOTAL_PRICE_ACTION, askTotalPriceHandler);
-actionMap.set(ASK_PRODUCT_ACTION, askProductHandler);
-actionMap.set(PAYMENT_ACTION, paymentHandler);
 
-actionMap.set('pick.option', pickOption);
-actionMap.set('option.picked', optionPicked);
 
 
 // start service
@@ -79,7 +68,25 @@ app.post('/', function (request, response) {
     // const userId = app.getUser().userId;
     // console.log(userId);
 
-    app.handleRequest(actionMap);
+
+    let actionMap = new Map();
+    actionMap.set(WELLCOM_ACTION, welcomeHandler)
+    actionMap.set(DEFAULT_FALLBACK_ACTION, defaultFallbackHandler);
+    actionMap.set(ORDER_ACTION, orderHandler);
+    actionMap.set(FIND_PRODUCT_ACTION, findProductHandler);
+    actionMap.set(ASK_PRICE_ACTION, askPriceHandler);
+    actionMap.set(ASK_TOTAL_PRICE_ACTION, askTotalPriceHandler);
+    actionMap.set(ASK_PRODUCT_ACTION, askProductHandler);
+    actionMap.set(PAYMENT_ACTION, paymentHandler);
+
+    // actionMap.set('pick.option', pickOption);
+    actionMap.set(app.StandardIntents.OPTION, optionPicked);
+
+    app.handleRequestAsync(actionMap).then(() => {
+        console.log('Success handling GoogleAction request');
+    }, (reason) => {
+        console.error('Error: ' + JSON.stringify(reason));
+    });
     // response.sendStatus(200); // reponse OK
 });
 
@@ -278,20 +285,21 @@ function paymentHandler(app) {
     });
 }
 
-function pickOption (app) {
+function pickOption(app) {
     if (app.hasSurfaceCapability(app.SurfaceCapabilities.SCREEN_OUTPUT)) {
-      app.askWithCarousel('Which of these looks good?',
-        app.getIncomingCarousel().addItems(
-          app.buildOptionItem('another_choice', ['Another choice']).
-          setTitle('Another choice').setDescription('Choose me!')));
+        app.askWithCarousel('Which of these looks good?',
+            app.getIncomingCarousel().addItems(
+                app.buildOptionItem('another_choice', ['Another choice']).
+                    setTitle('Another choice').setDescription('Choose me!')));
     } else {
-      app.ask('What would you like?');
+        app.ask('What would you like?');
     }
-  }
-  
-  function optionPicked (app) {
+}
+
+function optionPicked(app) {
+
     app.ask('You picked ' + app.getSelectedOption());
-  }
+}
 
 // support method
 function findProduct(productname) {
