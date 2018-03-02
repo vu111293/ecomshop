@@ -82,8 +82,8 @@ app.post('/', function (request, response) {
     actionMap.set(PAYMENT_ACTION, paymentHandler);
 
     // actionMap.set('pick.option', pickOption);
-    actionMap.set(OPTION_INTENT, optionPicked);
-    actionMap.set('option.picked', optionPicked);
+    actionMap.set('actions_intent_OPTION', optionPicked);
+    actionMap.set('actions.intent.OPTION', optionPicked2);
     
 
     app.handleRequestAsync(actionMap).then(() => {
@@ -311,8 +311,11 @@ function pickOption(app) {
 }
 
 function optionPicked(app) {
-
     app.ask('You picked ' + app.getSelectedOption());
+}
+
+function optionPicked2(app) {
+    app.ask('You picked2 ' + app.getSelectedOption());
 }
 
 // support method
