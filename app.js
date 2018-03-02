@@ -99,11 +99,23 @@ function welcomeHandler(app) {
     if (promotionsList == null) {
         app.ask("Shop xin kính chào quí khách");
     } else {
-        var promotionDraft = '';
+        var promotions = [];
         for (let item in promotionsList) {
-            promotionDraft += promotionsList[item] + "\n";
+            promotions.push(app.buildOptionItem('selection key ' + item,
+                ['key ' + item])
+                .setTitle(promotionsList[item]));
         }
-        app.ask("Shop xin kính chào quý khách. Hiện tại shop có các chương trinh KM sau:\n" + promotionDraft);
+
+        app.askWithList('Shop xin kính chào quý khách',
+            app.buildList('Các chương trình khuyến mãi')
+                .addItems(promotions));
+
+
+        // var promotionDraft = '';
+        // for (let item in promotionsList) {
+        //     promotionDraft += promotionsList[item] + "\n";
+        // }
+        // app.ask("Shop xin kính chào quý khách. Hiện tại shop có các chương trinh KM sau:\n" + promotionDraft);
     }
 }
 
