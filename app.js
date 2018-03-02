@@ -83,6 +83,8 @@ app.post('/', function (request, response) {
 
     // actionMap.set('pick.option', pickOption);
     actionMap.set(OPTION_INTENT, optionPicked);
+    actionMap.set('option.picked', optionPicked);
+    
 
     app.handleRequestAsync(actionMap).then(() => {
         console.log('Success handling GoogleAction request');
