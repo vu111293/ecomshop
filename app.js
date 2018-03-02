@@ -124,7 +124,10 @@ function welcomeHandler(app) {
         for (let item in promotionsList) {
             promotions.push(app.buildOptionItem('selection key ' + item,
                 ['key ' + item])
-                .setTitle(promotionsList[item]));
+                .setTitle(promotionsList[item])
+                .setDescription('42 is an abundant number because the sum of its ' +
+                    'proper divisors 54 is greater…')
+                .setImage('http://example.com/math_and_prime.jpg', 'Math & prime numbers'));
         }
 
         app.askWithCarousel('Which of these looks good?',
