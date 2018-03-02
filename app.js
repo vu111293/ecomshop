@@ -27,6 +27,8 @@ let rxhttp = require('rx-http-request').RxHttpRequest;
 const WELLCOM_ACTION = 'input.welcome';
 const DEFAULT_FALLBACK_ACTION = 'input.unknown';
 
+const OPTION_INTENT = 'option.select';
+
 // IOT action group
 const ORDER_ACTION = 'order';
 const FIND_PRODUCT_ACTION = 'find_product';
@@ -80,7 +82,7 @@ app.post('/', function (request, response) {
     actionMap.set(PAYMENT_ACTION, paymentHandler);
 
     // actionMap.set('pick.option', pickOption);
-    actionMap.set(app.StandardIntents.OPTION, optionPicked);
+    actionMap.set(OPTION_INTENT, optionPicked);
 
     app.handleRequestAsync(actionMap).then(() => {
         console.log('Success handling GoogleAction request');
@@ -105,6 +107,15 @@ function setupdb() {
     });
 }
 
+let getStartList = function (app) {
+    let list = app.buildList('Start Game or Instructions');
+    list.addItems([
+        app.buildOptionItem('start_game', ['Start', 'New Game']).setTitle('Start Game'),
+        app.buildOptionItem('instruction', ['Help', 'Read Instructions', 'Tell Me Instructions', 'Repeat Instructions']).setTitle('Instructions')
+    ]);
+    return list;
+};
+
 function welcomeHandler(app) {
     if (promotionsList == null) {
         app.ask("Shop xin kính chào quí khách");
@@ -116,11 +127,9 @@ function welcomeHandler(app) {
                 .setTitle(promotionsList[item]));
         }
 
-        app.askWithList('Shop xin kính chào quý khách',
-            app.buildList('Các chương trình khuyến mãi')
+        app.askWithCarousel('Which of these looks good?',
+            app.buildCarousel()
                 .addItems(promotions));
-
-
         // var promotionDraft = '';
         // for (let item in promotionsList) {
         //     promotionDraft += promotionsList[item] + "\n";
