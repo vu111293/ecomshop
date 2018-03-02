@@ -3,14 +3,13 @@
 // Enable actions client library debugging
 process.env.DEBUG = 'actions-on-google:*';
 
-let ActionsSdkApp = require('actions-on-google').ActionsSdkApp;
+let App = require('actions-on-google').DialogflowApp;
 let express = require('express');
 let bodyParse = require('body-parser');
 let sprintf = require('sprintf-js').sprintf;
 let localize = require('localize');
 let url = require('url');
 let ecomMod = require('./ecomapi');
-const rpsls = require('./rpsls')
 
 // firebase lib
 var admin = require("firebase-admin");
@@ -66,7 +65,7 @@ app.post('/', function (request, response) {
     //     console.log('userId is ' + userId);
     // }
 
-    const app = new ActionsSdkApp({ request: request, response: response });
+    const app = new App({ request: request, response: response });
     // console.log('Token: ' + app.getUser().accessToken);
     // const userId = app.getUser().userId;
     // console.log(userId);
@@ -82,9 +81,9 @@ app.post('/', function (request, response) {
     actionMap.set(ASK_PRODUCT_ACTION, askProductHandler);
     actionMap.set(PAYMENT_ACTION, paymentHandler);
 
-    actionMap.set(app.StandardIntents.MAIN,  rpsls.mainIntentHandler);
-    actionMap.set(app.StandardIntents.OPTION, rpsls.optionIntentHandler);
-    actionMap.set(app.StandardIntents.TEXT,  rpsls.textIntentHandler);
+    // actionMap.set('pick.option', pickOption);
+    actionMap.set('actions_intent_OPTION', optionPicked);
+    actionMap.set('actions.intent.OPTION', optionPicked2);
     
 
     app.handleRequestAsync(actionMap).then(() => {
@@ -312,11 +311,13 @@ function pickOption(app) {
 }
 
 function optionPicked(app) {
+
     app.ask('You picked ' + app.getSelectedOption());
 }
 
 function optionPicked2(app) {
-    app.ask('You picked2 ' + app.getSelectedOption());
+
+    app.ask('You picked ' + app.getSelectedOption());
 }
 
 // support method
