@@ -122,24 +122,25 @@ function welcomeHandler(app) {
     if (promotionsList == null) {
         app.ask("Shop xin kính chào quí khách");
     } else {
-        var promotions = [];
-        for (let item in promotionsList) {
-            promotions.push(app.buildOptionItem('selection key ' + item,
-                ['key ' + item])
-                .setTitle(promotionsList[item])
-                .setDescription('42 is an abundant number because the sum of its ' +
-                    'proper divisors 54 is greater…')
-                .setImage('http://example.com/math_and_prime.jpg', 'Math & prime numbers'));
-        }
-
-        app.askWithCarousel('Which of these looks good?',
-            app.buildCarousel()
-                .addItems(promotions));
-        // var promotionDraft = '';
+        // var promotions = [];
         // for (let item in promotionsList) {
-        //     promotionDraft += promotionsList[item] + "\n";
+        //     promotions.push(app.buildOptionItem('selection key ' + item,
+        //         ['key ' + item])
+        //         .setTitle(promotionsList[item])
+        //         .setDescription('42 is an abundant number because the sum of its ' +
+        //             'proper divisors 54 is greater…')
+        //         .setImage('http://example.com/math_and_prime.jpg', 'Math & prime numbers'));
         // }
-        // app.ask("Shop xin kính chào quý khách. Hiện tại shop có các chương trinh KM sau:\n" + promotionDraft);
+
+        // app.askWithCarousel('Which of these looks good?',
+        //     app.buildCarousel()
+        //         .addItems(promotions));
+        
+        var promotionDraft = '';
+        for (let item in promotionsList) {
+            promotionDraft += promotionsList[item] + "\n";
+        }
+        app.ask("Shop xin kính chào quý khách. Hiện tại shop có các chương trinh KM sau:\n" + promotionDraft);
     }
 }
 
