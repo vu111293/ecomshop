@@ -84,7 +84,7 @@ app.post('/', function (request, response) {
     // actionMap.set('pick.option', pickOption);
     actionMap.set('actions_intent_OPTION', optionPicked);
     actionMap.set('actions.intent.OPTION', optionPicked2);
-    
+
 
     app.handleRequestAsync(actionMap).then(() => {
         console.log('Success handling GoogleAction request');
@@ -135,12 +135,12 @@ function welcomeHandler(app) {
         // app.askWithCarousel('Which of these looks good?',
         //     app.buildCarousel()
         //         .addItems(promotions));
-        
+
         var promotionDraft = '';
         for (let item in promotionsList) {
             promotionDraft += promotionsList[item] + "\n";
         }
-        app.ask("Shop xin kính chào quý khách. Hiện tại shop có các chương trinh KM sau:\n" + promotionDraft);
+        app.ask("Chương trình khuyến mãi:\n" + promotionDraft);
     }
 }
 
@@ -175,9 +175,9 @@ function orderHandler(app) {
         //     console.log('call here @@@');
         // }
 
-        if (product == null) {
+        let context = app.getContext('ask-product-context');
+        if (context != null || product == null) {
             // check context
-            let context = app.getContext('ask-product-context');
             if (context == null) {
                 ask = 'Bạn muốn mua gì?';
                 break;
