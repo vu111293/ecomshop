@@ -166,12 +166,20 @@ function orderHandler(app) {
     let sugar = app.getArgument('sugar_model');
     let ice = app.getArgument('ice_model');
 
-    // let askPreProduct = app.getArgument('ask_preproduct');
-    // let askPostProduct = app.getArgument('ask_product');
+    let askPreProduct = app.getArgument('ask_preproduct');
+    let askPostProduct = app.getArgument('ask_product');
 
     var ask = '';
 
     do {
+        if (askPreProduct && askPostProduct && product) {
+            let foundProduct = findProduct(product.toLowerCase());
+            if (foundProduct) {
+                ask = 'Có bạn nha. Bạn muốn mua mấy ly?'
+                break;
+            }
+        }
+
         let googleContext = app.getContext('_actions_on_google_');
         if (googleContext) {
             if (!googleContext.parameters.product && googleContext.parameters.product_ask) {
