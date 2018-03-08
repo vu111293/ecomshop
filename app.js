@@ -363,7 +363,7 @@ function resetContext(app) {
 function addOptionsContext(app, options) {
     const params = {};
     params['options'] = options;
-    app.setContext('local.ui.options', 1, params);
+    app.setContext('local-ui-options', 1, params);
 }
 
 function addConfirmContext(content) {
