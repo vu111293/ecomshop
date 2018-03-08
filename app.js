@@ -172,32 +172,36 @@ function orderHandler(app) {
     var ask = '';
 
     do {
-        // if (askPreProduct && askPostProduct && product) {
-        //     let foundProduct = findProduct(product.toLowerCase());
-        //     if (foundProduct) {
-        //         ask = 'Có bán ' + product + ' bạn nha. ';
-        //     } else {
-        //         ask = 'Hiện tại shop không bán ' + product + '. Xin chọn sp khác';
-        //     }
-        //     console.log('call here @@@');
-        // }
-
-        let context = app.getContext('ask-product-context');
-        if (context != null || product == null) {
-            // check context
-            if (context == null) {
-                ask = 'Bạn muốn mua gì?';
-                break;
+        let googleContext = app.getContext('_actions_on_google_');
+        if (googleContext) {
+            if (!googleContext.parameters.product && googleContext.parameters.product_ask) {
+                    googleContext.parameters.product = googleContext.parameters.product_ask;
+                    product = googleContext.parameters.product;
+                    app.setContext(googleContext.name, googleContext.lifespan, googleContext.parameters);
             }
-
-            let cacheProduct = context.parameters.product_ask;
-            if (cacheProduct == null) {
-                ask = 'Bạn muốn mua gì?';
-                break;
-            }
-
-            product = cacheProduct;
         }
+
+        if (product == null) {
+            ask = 'Bạn muốn mua gì?';
+            break;
+        }
+
+        // let context = app.getContext('ask-product-context');
+        // if (context != null || product == null) {
+        //     // check context
+        //     if (context == null) {
+        //         ask = 'Bạn muốn mua gì?';
+        //         break;
+        //     }
+
+        //     let cacheProduct = context.parameters.product_ask;
+        //     if (cacheProduct == null) {
+        //         ask = 'Bạn muốn mua gì?';
+        //         break;
+        //     }
+
+        //     product = cacheProduct;
+        // }
 
         let foundProduct = findProduct(product.toLowerCase());
         if (foundProduct == null) {
