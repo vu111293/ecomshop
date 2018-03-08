@@ -38,9 +38,6 @@ const ASK_PRODUCT_ACTION = 'ask_product';
 const PAYMENT_ACTION = 'payment';
 
 
-
-
-
 // start service
 var ecom = new ecomMod();
 setupdb();
@@ -237,7 +234,7 @@ function orderHandler(app) {
         }
 
         app.data.orderList.push(bill);
-        app.ask('Bạn đã order: ' + JSON.stringify(bill));
+        app.tell('Bạn đã order: ' + JSON.stringify(bill));
     }
 }
 
@@ -250,7 +247,7 @@ function askPriceHandler(app) {
 
     let foundItem = findProduct(product.toLowerCase());
     if (foundItem) {
-        app.ask(product + ' có giá ' + foundItem.price);
+        app.tell(product + ' có giá ' + foundItem.price);
     } else {
         app.ask('Không tìm thấy sản phẩm. Xin thử lại');
     }
@@ -293,7 +290,7 @@ function paymentHandler(app) {
             let address = response.address;
             let time = response.created_at;
             let id = response.id.substring(0, 5) + '...' + response.id.substring(response.id.length - 5);
-            app.ask('Bill ' + id + ' đã tạo thành công. Tổng bill là ' + totalPrice + ', được giao đến ' + address);
+            app.tell('Bill ' + id + ' đã tạo thành công. Tổng bill là ' + totalPrice + ', được giao đến ' + address);
         } else {
             app.ask('Xãy ra lỗi khi thanh toán');
         }
