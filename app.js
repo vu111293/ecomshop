@@ -172,7 +172,7 @@ function orderHandler(app) {
     var ask = '';
 
     do {
-        if (askPreProduct && askPostProduct && product) {
+        if (!quantily && askPreProduct && askPostProduct && product) {
             let foundProduct = findProduct(product.toLowerCase());
             if (foundProduct) {
                 ask = 'Có bạn nha. Bạn muốn mua mấy ly?'
