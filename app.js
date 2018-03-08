@@ -161,6 +161,7 @@ function findProductHandler(app) {
 function orderHandler(app) {
     let product = app.getArgument('product');
     let quantily = app.getArgument('quantily');
+    let quantilyNonFormat = app.getArgument('quantily-nonformat');
     let size = app.getArgument('size_model');
     let sugar = app.getArgument('sugar_model');
     let ice = app.getArgument('ice_model');
@@ -204,7 +205,11 @@ function orderHandler(app) {
             break;
         }
 
-        if (quantily == null) {
+        if (quantily != null) {
+
+        } else if (quantilyNonFormat != null) {
+            quantily = quantilyNonFormat;
+        } else {
             quantily = 1;
         }
 
