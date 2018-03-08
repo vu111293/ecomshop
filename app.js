@@ -234,6 +234,7 @@ function orderHandler(app) {
         }
 
         app.data.orderList.push(bill);
+        resetContext(app);
         app.tell('Bạn đã order: ' + JSON.stringify(bill));
     }
 }
@@ -341,4 +342,11 @@ function findProduct(productname) {
     }
 
     return foundItem;
+}
+
+function resetContext(app) {
+    let contexts = app.getContexts();
+    for (let i in contexts) {
+        app.getContext(contexts[i].name, 0, null);
+    }
 }
