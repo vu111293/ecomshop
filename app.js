@@ -175,9 +175,9 @@ function orderHandler(app) {
         let googleContext = app.getContext('_actions_on_google_');
         if (googleContext) {
             if (!googleContext.parameters.product && googleContext.parameters.product_ask) {
-                    googleContext.parameters.product = googleContext.parameters.product_ask;
-                    product = googleContext.parameters.product;
-                    app.setContext(googleContext.name, googleContext.lifespan, googleContext.parameters);
+                googleContext.parameters.product = googleContext.parameters.product_ask;
+                product = googleContext.parameters.product;
+                app.setContext(googleContext.name, googleContext.lifespan, googleContext.parameters);
             }
         }
 
@@ -291,6 +291,13 @@ function askProductHandler(app) {
         let foundProduct = findProduct(product.toLowerCase());
         let ask;
         if (foundProduct) {
+
+            // add product to context
+            let googleContext = app.getContext('_actions_on_google_');
+            if (googleContext) {
+                googleContext.parameters.product = product;
+                app.setContext(googleContext.name, googleContext.lifespan, googleContext.parameters);
+            }
             ask = 'Có bán ' + product + ' bạn nha. Bạn muốn mua bao nhiêu ly?';
         } else {
             ask = 'Hiện tại shop không bán ' + product + '. Xin chọn sản phẩm khác';
