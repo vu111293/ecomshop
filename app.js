@@ -133,10 +133,19 @@ function welcomeHandler(app) {
         //     app.buildCarousel()
         //         .addItems(promotions));
 
+        var options = [];
         var promotionDraft = '';
+
         for (let item in promotionsList) {
             promotionDraft += promotionsList[item] + "\n";
+            options.push({
+                'title': promotionsList[item],
+                'type': 'tylemode',
+                'value': 120
+            });
         }
+
+        addOptionsContext(app, options);
         app.ask("Chương trình khuyến mãi:\n" + promotionDraft);
     }
 }
@@ -349,4 +358,18 @@ function resetContext(app) {
     for (let i in contexts) {
         app.setContext(contexts[i].name, 0, null);
     }
+}
+
+function addOptionsContext(app, options) {
+    const params = {};
+    params['options'] = options;
+    app.setContext('local.ui.options', 1, params);
+}
+
+function addConfirmContext(content) {
+
+}
+
+function addGalleryContext(list) {
+
 }
