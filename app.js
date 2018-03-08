@@ -347,6 +347,6 @@ function findProduct(productname) {
 function resetContext(app) {
     let contexts = app.getContexts();
     for (let i in contexts) {
-        app.getContext(contexts[i].name, 0, null);
+        app.setContext(contexts[i].name, 0, null);
     }
 }
