@@ -37,6 +37,7 @@ const ASK_TOTAL_PRICE_ACTION = 'ask_total_price';
 const ASK_PRODUCT_ACTION = 'ask_product';
 const PAYMENT_ACTION = 'payment';
 const PROMOTIONS_ACTION = 'promotions';
+const ASK_NEXT_ORDER_ACTION = 'next_order';
 
 
 // start service
@@ -79,6 +80,7 @@ app.post('/', function (request, response) {
     actionMap.set(ASK_PRODUCT_ACTION, askProductHandler);
     actionMap.set(PAYMENT_ACTION, paymentHandler);
     actionMap.set(PROMOTIONS_ACTION, promotionHandler);
+    actionMap.set(ASK_NEXT_ORDER_ACTION, askNextOrderHandler);
 
     // actionMap.set('pick.option', pickOption);
     actionMap.set('actions_intent_OPTION', optionPicked);
@@ -237,6 +239,7 @@ function orderHandler(app) {
 
         app.data.orderList.push(bill);
         // resetContext(app);
+        app.setContext('next-order-context', 1, null);
         app.ask('Đã thêm ' + product.name + ' vào hóa đơn. Bạn muốn mua gì thêm không?');
     }
 }
@@ -335,6 +338,20 @@ function promotionHandler(app) {
 
         addOptionsContext(app, options);
         app.ask("Quý khách tham khảo chương trình khuyến mãi trên màn hình");
+    }
+}
+
+function askNextOrderHandler(app) {
+    let confirm = app.getArgument('confirm');
+    if (confirm) {
+        if (confirm == 'yes') {
+            app.ask("Mời bạn chọn món kế tiếp");
+        } else {
+            askTotalPriceHandler(app);
+        }
+    } else {
+        app.setContext('next-order-context', 1, null);
+        app.ask('Bạn muốn mua gì thêm không?');
     }
 }
 
