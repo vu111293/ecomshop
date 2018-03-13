@@ -36,6 +36,7 @@ const ASK_PRICE_ACTION = 'ask_price';
 const ASK_TOTAL_PRICE_ACTION = 'ask_total_price';
 const ASK_PRODUCT_ACTION = 'ask_product';
 const PAYMENT_ACTION = 'payment';
+const PROMOTIONS_ACTION = 'promotions';
 
 
 // start service
@@ -77,6 +78,7 @@ app.post('/', function (request, response) {
     actionMap.set(ASK_TOTAL_PRICE_ACTION, askTotalPriceHandler);
     actionMap.set(ASK_PRODUCT_ACTION, askProductHandler);
     actionMap.set(PAYMENT_ACTION, paymentHandler);
+    actionMap.set(PROMOTIONS_ACTION, promotionHandler);
 
     // actionMap.set('pick.option', pickOption);
     actionMap.set('actions_intent_OPTION', optionPicked);
@@ -116,38 +118,7 @@ let getStartList = function (app) {
 };
 
 function welcomeHandler(app) {
-    if (promotionsList == null) {
-        app.ask("Shop xin kính chào quí khách");
-    } else {
-        // var promotions = [];
-        // for (let item in promotionsList) {
-        //     promotions.push(app.buildOptionItem('selection key ' + item,
-        //         ['key ' + item])
-        //         .setTitle(promotionsList[item])
-        //         .setDescription('42 is an abundant number because the sum of its ' +
-        //             'proper divisors 54 is greater…')
-        //         .setImage('http://example.com/math_and_prime.jpg', 'Math & prime numbers'));
-        // }
-
-        // app.askWithCarousel('Which of these looks good?',
-        //     app.buildCarousel()
-        //         .addItems(promotions));
-
-        var options = [];
-        var promotionDraft = '';
-
-        for (let item in promotionsList) {
-            promotionDraft += promotionsList[item] + "\n";
-            options.push({
-                'title': promotionsList[item],
-                'type': 'tylemode',
-                'value': 120
-            });
-        }
-
-        addOptionsContext(app, options);
-        app.ask("Chương trình khuyến mãi:\n" + promotionDraft);
-    }
+    app.ask("Shop xin kính chào quí khách");
 }
 
 function defaultFallbackHandler(app) {
@@ -329,6 +300,27 @@ function paymentHandler(app) {
             app.ask('Xãy ra lỗi khi thanh toán');
         }
     });
+}
+
+function promotionHandler(app) {
+    if (promotionsList == null) {
+        app.ask("Hiện tại shop chưa có chương trình khuyến mãi. Cảm ơn quý khách đã quan tâm");
+    } else {
+        var options = [];
+        var promotionDraft = '';
+
+        for (let item in promotionsList) {
+            promotionDraft += promotionsList[item] + "\n";
+            options.push({
+                'title': promotionsList[item],
+                'type': 'tylemode',
+                'value': 120
+            });
+        }
+
+        addOptionsContext(app, options);
+        app.ask("Quý khách tham khảo chương trình khuyến mãi trên màn hình");
+    }
 }
 
 function pickOption(app) {
