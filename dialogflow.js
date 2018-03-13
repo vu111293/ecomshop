@@ -104,7 +104,8 @@ function orderHandler(app) {
         // }
 
         // app.data.orderList.push(bill);
-        addBillToWishlist(app, createBill(product.name, quantity, size, sugar, ice, product.price));
+        let bill = createBill(product.name, quantity, size, sugar, ice, product.price);
+        addBillToWishlist(app, bill);
         // resetContext(app);
         app.setContext('next-order-context', 1, null);
         buildOrderConfirm(app, bill);
@@ -275,7 +276,7 @@ function dbChanged(postSnapshot) {
 // support method
 let buildOrderConfirm = function (app, bill) {
     let strProducts = '';
-    if (bill.isArray) {
+    if (bill instanceof Array) {
         strProducts = bill[0].name;
         for (var i = 1; i < bill.length; ++i) {
             strProducts += ', ' + bill[i].name;
@@ -291,12 +292,13 @@ let addBillToWishlist = function (app, bill) {
         app.data.orderList = [];
     }
 
-    if (bill.isArray) {
-        app.data.orderList.pushArray(bill);
+    if (bill instanceof Array) {
+        for (var i = 0; i < bill.length; ++i) {
+            app.data.orderList.push(bill[i]);    
+        }
     } else {
         app.data.orderList.push(bill);
     }
-
 }
 
 let createBill = function (name, quantity, size, sugar, ice, price) {
