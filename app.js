@@ -126,16 +126,19 @@ function defaultFallbackHandler(app) {
 }
 
 function findProductHandler(app) {
-    app.ask('Hi bạn. Hiện tại shop bán các loại thức uống và trà sữa. Bạn cần gì ạ');
+    // push menu options
+    app.ask('Quý khách vui lòng tham khảo thực đơn trên màn hình');
 }
 
 function orderHandler(app) {
-    let product = app.getArgument('product');
+    let productName = app.getArgument('product');
     let quantily = app.getArgument('quantily');
     let quantilyNonFormat = app.getArgument('quantily-nonformat');
     let size = app.getArgument('size_model');
     let sugar = app.getArgument('sugar_model');
     let ice = app.getArgument('ice_model');
+
+    var product;
 
     let askPreProduct = app.getArgument('ask_preproduct');
     let askPostProduct = app.getArgument('ask_product');
@@ -143,10 +146,10 @@ function orderHandler(app) {
     var ask = '';
 
     do {
-        if (!quantily && askPreProduct && askPostProduct && product) {
-            let foundProduct = findProduct(product.toLowerCase());
+        if (!quantily && askPreProduct && askPostProduct && productName) {
+            let foundProduct = findProduct(productName.toLowerCase());
             if (foundProduct) {
-                ask = 'Có bạn nha. Bạn muốn mua mấy ly?'
+                ask = 'Có ' + foundProduct.name + ' bạn nha. Bạn muốn mua mấy ly?'
                 break;
             }
         }
@@ -155,12 +158,12 @@ function orderHandler(app) {
         if (googleContext) {
             if (!googleContext.parameters.product && googleContext.parameters.product_ask) {
                 googleContext.parameters.product = googleContext.parameters.product_ask;
-                product = googleContext.parameters.product;
+                productName = googleContext.parameters.product;
                 app.setContext(googleContext.name, googleContext.lifespan, googleContext.parameters);
             }
         }
 
-        if (product == null) {
+        if (productName == null) {
             ask = 'Bạn muốn mua gì?';
             break;
         }
@@ -182,11 +185,12 @@ function orderHandler(app) {
         //     product = cacheProduct;
         // }
 
-        let foundProduct = findProduct(product.toLowerCase());
-        if (foundProduct == null) {
-            ask = 'Hiện tại shop không bán ' + product + '. Xin chọn sp khác';
+        product = findProduct(productName.toLowerCase());
+        if (product == null) {
+            ask = 'Hiện tại shop không bán ' + productName + '. Xin chọn sản phẩm khác';
             break;
         }
+        productName = product.name;
 
         if (quantily != null) {
 
@@ -200,8 +204,8 @@ function orderHandler(app) {
             size = "medium";
         }
 
-        let options = foundProduct.options;
-        console.log("Product found: " + JSON.stringify(foundProduct));
+        let options = product.options;
+        console.log("Product found: " + JSON.stringify(product));
         console.log("Options: " + JSON.stringify(options));
 
         if (sugar == null && options.includes('sugar')) {
@@ -223,16 +227,17 @@ function orderHandler(app) {
         }
 
         let bill = {
-            'name': product,
+            'name': product.name,
             'quantily': quantily,
             'size': size,
             'sugar': sugar,
-            'ice': ice
+            'ice': ice,
+            'price': product.price * quantily
         }
 
         app.data.orderList.push(bill);
-        resetContext(app);
-        app.tell('Bạn đã order: ' + JSON.stringify(bill));
+        // resetContext(app);
+        app.ask('Đã thêm ' + product.name + ' vào hóa đơn. Bạn muốn mua gì thêm không?');
     }
 }
 
@@ -245,7 +250,7 @@ function askPriceHandler(app) {
 
     let foundItem = findProduct(product.toLowerCase());
     if (foundItem) {
-        app.tell(product + ' có giá ' + foundItem.price);
+        app.ask(foundItem.name + ' có giá ' + foundItem.price);
     } else {
         app.ask('Không tìm thấy sản phẩm. Xin thử lại');
     }
@@ -253,15 +258,25 @@ function askPriceHandler(app) {
 
 function askTotalPriceHandler(app) {
     if (app.data.orderList == null) {
-        app.ask('Bạn chưa có sản phẩm nào trong giỏ.');
+        app.ask('Quý khách hiện chưa gọi món, vui lòng gọi món tại đây.');
         return;
     }
 
-    var amount = 0;
+    var totalPrice = 0;
+    var options = [];
     for (var i = 0; i < app.data.orderList.length; ++i) {
-        amount += parseInt(app.data.orderList[i].quantily);
+        var product = app.data.orderList[i];
+        totalPrice += parseInt(product.price);
+
+        options.push({
+            'title': product.name,
+            'type': 'SL: ' + product.quantily,
+            'value': product.price * product.quantily
+        });
     }
-    app.ask('Bạn đã mua ' + amount + ' sản phẩm. Tổng giá ' + (amount * 25) + 'k');
+
+    addOptionsContext(app, options);
+    app.ask('Tổng giá ' + totalPrice + ' đồng. Quý khách xem chi tiết hóa đơn trên màn hình');
 }
 
 function askProductHandler(app) {
