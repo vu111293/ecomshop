@@ -1,7 +1,23 @@
 
-var drinkList;
-var foodList;
-var promotionsList;
+const conf = require('./configure');
+
+let drinkList;
+let foodList;
+let promotionsList;
+
+let admin = require("firebase-admin", conf.SERVER_KEY_PATH);
+let serviceAccount = require(conf.SERVER_KEY_PATH);
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: conf.FIREBASE_URL
+});
+
+admin.database().ref('/').on('value', function (postSnapshot) {
+    dbChanged(postSnapshot);
+    console.log('firebase updated');
+});
+
 
 function welcomeHandler(app) {
     app.ask("Shop xin kính chào quí khách");
@@ -179,6 +195,7 @@ function askTotalPriceHandler(app) {
 
     addOptionsContext(app, options);
     app.ask('Tổng giá ' + totalPrice + ' đồng. Quý khách xem chi tiết hóa đơn trên màn hình');
+    sendNewBill(app.data.orderList);
 }
 
 function askProductHandler(app) {
@@ -205,18 +222,19 @@ function askProductHandler(app) {
 }
 
 function paymentHandler(app) {
-    ecom.makeOrder(function (response) {
-        if (response) {
-            // parse result
-            let totalPrice = response.total_price;
-            let address = response.address;
-            let time = response.created_at;
-            let id = response.id.substring(0, 5) + '...' + response.id.substring(response.id.length - 5);
-            app.tell('Bill ' + id + ' đã tạo thành công. Tổng bill là ' + totalPrice + ', được giao đến ' + address);
-        } else {
-            app.ask('Xãy ra lỗi khi thanh toán');
-        }
-    });
+    app.ask('Hiện tại tính năng này đang hoàn thiện.');
+    // ecom.makeOrder(function (response) {
+    //     if (response) {
+    //         // parse result
+    //         let totalPrice = response.total_price;
+    //         let address = response.address;
+    //         let time = response.created_at;
+    //         let id = response.id.substring(0, 5) + '...' + response.id.substring(response.id.length - 5);
+    //         app.tell('Bill ' + id + ' đã tạo thành công. Tổng bill là ' + totalPrice + ', được giao đến ' + address);
+    //     } else {
+    //         app.ask('Xãy ra lỗi khi thanh toán');
+    //     }
+    // });
 }
 
 function promotionHandler(app) {
@@ -294,7 +312,7 @@ let addBillToWishlist = function (app, bill) {
 
     if (bill instanceof Array) {
         for (var i = 0; i < bill.length; ++i) {
-            app.data.orderList.push(bill[i]);    
+            app.data.orderList.push(bill[i]);
         }
     } else {
         app.data.orderList.push(bill);
@@ -358,6 +376,44 @@ let addGalleryContext = function (list) {
 
 }
 
+let sendNewBill = function (orderList) {
+    var totalPrice = 0;
+    var options = [];
+    for (var i = 0; i < orderList.length; ++i) {
+        var product = orderList[i];
+        totalPrice += parseInt(product.price);
+
+        options.push({
+            'title': product.name,
+            'type': 'SL: ' + product.quantily,
+            'value': product.price * product.quantily
+        });
+    }
+
+    let condition = "'marika-coffee' in topics";
+    // let topic = 'marika-coffee'
+    let message = {
+        notification: {
+            title: 'Hóa đơn mới từ khách hàng take away',
+            body: 'Tổng hóa đơn ' + totalPrice + ' đồng.'
+        },
+        data: {
+            type: 'take-away'
+            // ,
+            // body: JSON.stringify(options)
+        },
+        condition: condition
+        // topic: topic
+    }
+
+    admin.messaging().send(message)
+        .then((response) => {
+            console.log('Successfully sent message:', response);
+        })
+        .catch((error) => {
+            console.log('Error sending message:', error);
+        });
+}
 
 module.exports = {
     dbChanged: dbChanged,

@@ -13,13 +13,13 @@ let ecomMod = require('./ecomapi');
 const dia = require('./dialogflow');
 
 // firebase lib
-var admin = require("firebase-admin");
-var serviceAccount = require("./orderchatbot-firebase-admin.json");
-
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://orderchatbot.firebaseio.com"
-});
+// const SERVER_KEY_PATH = "./orderchatbot-firebase-admin.json";
+// var admin = require("firebase-admin", SERVER_KEY_PATH);
+// var serviceAccount = require(SERVER_KEY_PATH);
+// admin.initializeApp({
+//     credential: admin.credential.cert(serviceAccount),
+//     databaseURL: "https://orderchatbot.firebaseio.com"
+// });
 
 // net lib
 let rxhttp = require('rx-http-request').RxHttpRequest;
@@ -43,7 +43,6 @@ const MULTI_ORDER_ACTION = 'multi_order';
 
 // start service
 var ecom = new ecomMod();
-setupdb();
 let app = express();
 app.set('port', (process.env.PORT || 8080));
 app.use(bodyParse.json({ type: 'application/json' }));
@@ -95,16 +94,53 @@ app.post('/', function (request, response) {
         console.error('Error: ' + JSON.stringify(reason));
     });
     // response.sendStatus(200); // reponse OK
+
+
+
 });
 
-function setupdb() {
-    admin.database().ref('/').on('value', function (postSnapshot) {
-        dia.dbChanged(postSnapshot);
-        // if (postSnapshot.val()) {
-        //     dia.drinkList = postSnapshot.val().drinklist;
-        //     dia.foodList = postSnapshot.val().foodlist;
-        //     dia.promotionsList = postSnapshot.val().promotions;
-        // }
-        console.log('firebase updated');
-    });
-}
+// let registrationToken = 'cm53HzIdkbA:APA91bGe7_Te3r9voYOdQPRMn6qZU5kwPvcgsq0nWkgjudqh9w2UP0kFTltepril8RSONqXGkL-5o4eZwyE2KLS2lCc44PHA2eF08bF1b0PUAtM0nGuK8rL4Uatx3dBXTgJwkm6pII-2';
+// var payload = {
+//     notification: {
+//       title: "This is a Notification",
+//       body: "This is the body of the notification message."
+//     }
+//   };
+
+//    var options = {
+//     priority: "high",
+//     timeToLive: 60 * 60 *24
+//   };
+
+//   admin.messaging().sendToDevice(registrationToken, payload, options)
+//   .then(function(response) {
+//     console.log("Successfully sent message:", response);
+//   })
+//   .catch(function(error) {
+//     console.log("Error sending message:", error);
+//   });
+
+// let condition = "'marika-coffee' in topics";
+// let topic = 'marika-coffee'
+// let message = {
+//     notification: {
+//         title: "This is a Notification",
+//         body: "This is the body of the notification message."
+//     },
+//     data: {
+//         title: 'Order #305 total price 25000vnđ',
+//         body: 'Good body',
+//         date_time: '08-20 11-2-2018'
+//     },
+//     condition: condition
+//     // topic: topic
+// }
+
+// admin.messaging().send(message)
+//     .then((response) => {
+//         // Response is a message ID string.
+//         console.log('Successfully sent message:', response);
+//     })
+//     .catch((error) => {
+//         console.log('Error sending message:', error);
+//     });
